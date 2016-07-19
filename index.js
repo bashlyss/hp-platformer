@@ -140,7 +140,7 @@ function updatelvl1() {
     ctx.fillStyle = 'green';
     ctx.fillRect(390, 148, 40, 50);
     if (!sleeping && player.x > 390) {
-    	console.log("fluffy eats you");
+      document.getElementById("notification").innerText = "You ran straight at a massive 3 headed dog named Fluffy and it ate you.  What else would you expect? You lose";
       return;
     }
     // Trapdoor
@@ -203,8 +203,12 @@ window.addEventListener("load", function () {
 function initRoomTwo() {
 	player.x = 25;
   player.y = 15;
+  state = 0;
+  document.getElementById("action").innerText = 'No action';
+  document.getElementById("lvl2").style = "display: initial;";
   refreshIntervalId = setInterval(function() {
     timer--;
+    document.getElementById("timer").innerText = timer;
     console.log("Time left: " + timer);
   }, 1000);
   boxes.push({
@@ -217,48 +221,76 @@ function initRoomTwo() {
 }
 
 function updatelvl2() {
+    if (player.color == "blue" && height/2 - player.y < 16) {
+        state = 3;
+      document.getElementById("action").innerText =  'Cast fire at the plant';
+    } else if (state === 3) {
+      state = 0;
+      document.getElementById("action").innerText = 'No action';
+    }
+    if (player.color != "blue" && height/2 - player.y < 16) {
+        state = 4;
+      document.getElementById("action").innerText =  'Escape vines';
+    } else if (state === 4) {
+      state = 0;
+      document.getElementById("action").innerText = 'No action';
+    }
+    if (player.x > 485 - player.width && player.y > height / 2) {
+      state = 5;
+      document.getElementById("action").innerText = "Open door";
+    } else if (state === 5) {
+      state = 0;
+      document.getElementById("action").innerText = 'No action';
+    }
     // check keys
     if (keys[17]) {   
     	changeCharacter();
       keys[17] = false;
     }
     if (keys[32]) {
-				// space
-        if (player.color == "blue") {
-        	player.y += 10;
-        } else {
-        	timer -= 5;
+        // space
+        if (state === 3) {
+            player.y += 10;
+            clearInterval(refreshIntervalId);
+            document.getElementById("lvl2").style = "";
+            document.getElementById("notification").innerText = "The vines shrivel away as you burn them and the plant lets you slide through";
+        }
+        if (state === 4) {
+            timer -= 5;
+            document.getElementById("notification").innerText = "Struggling only makes the vines tighter.  You are suffocating under these vines!";
         } 
-        if (player.x > 485 - player.width && player.y > height / 2) {
-        	console.log('enter door');
-          clearInterval(refreshIntervalId);
+        if (state === 5) {
+            document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life size chess ever. I think you need to win the game to pass';
           return initRoomThree();
         }
         keys[32] = false;
     }
-    if (keys[38]) {
-        // up arrow
-        if (!player.jumping && player.grounded) {
-            player.jumping = true;
-            player.grounded = false;
-            player.velY = -player.speed * 3;
+    if (player.y > height / 2 || height/2 - player.y > 15) { 
+        if (keys[38]) {
+            // up arrow
+            if (!player.jumping && player.grounded) {
+                player.jumping = true;
+                player.grounded = false;
+                player.velY = -player.speed * 3;
+            }
+        }
+        if (keys[39]) {
+            // right arrow
+            if (player.velX < player.speed) {
+                player.velX++;
+            }
+        }
+        if (keys[37]) {
+            // left arrow
+            if (player.velX > -player.speed) {
+                player.velX--;
+            }
         }
     }
-    if (keys[39]) {
-        // right arrow
-        if (player.velX < player.speed) {
-            player.velX++;
-        }
-    }
-    if (keys[37]) {
-        // left arrow
-        if (player.velX > -player.speed) {
-            player.velX--;
-        }
-    }
-		if (timer < 0) {
-      clearInterval(refreshIntervalId);
-    	return console.log('out of time');
+    if (timer < 0) {
+        clearInterval(refreshIntervalId);
+        document.getElementById("notification").innerText = "The vines have completely restrained your entire group.  You Lose";
+    	return;
     }
     player.velX *= friction;
     player.velY += gravity;
@@ -542,7 +574,6 @@ function lastRoom () {
 }
 
 function changeCharacter() {
-  console.log('change character');
   if (player.color == "red") {
     document.getElementById("current").innerText = "Hermoine";
     player.color = "blue";
