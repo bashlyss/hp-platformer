@@ -28,6 +28,7 @@ var canvas = document.getElementById("canvas"),
 var boxes = [];
 var timer = 60;
 var chess = false;
+var action = 0;
 
 // dimensions
 boxes.push({
@@ -51,6 +52,7 @@ boxes.push({
 
 canvas.width = width;
 canvas.height = height;
+document.getElementById("current").innerText = "Harry";
 
 function updatelvl1() {
     // check keys 
@@ -526,10 +528,13 @@ function lastRoom () {
 function changeCharacter() {
   console.log('change character');
   if (player.color == "red") {
+    document.getElementById("current").innerText = "Hermoine";
     player.color = "blue";
   } else if (player.color == "blue") {
+    document.getElementById("current").innerText = "Ron";
     player.color = "purple";
   } else {
+    document.getElementById("current").innerText = "Harry";
     player.color = "red";
   }
 }
