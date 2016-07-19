@@ -53,7 +53,7 @@ boxes.push({
 canvas.width = width;
 canvas.height = height;
 document.getElementById("current").innerText = "Harry";
-document.getElementById("notification").innerText = 'You have snuck into the forbidden third floor corridor with your best friends Ron and Hermoine in your first year of school.  Get to the Philosopher\'s Stone before Snape does! But first, you need to find a way past Fluffy, the 3 headed dog (large green blob)';
+document.getElementById("notification").innerText = 'You have snuck into the forbidden third floor corridor with your best friends Ron and Hermoine in your first year of school.  Get to the Philosopher\'s Stone before Snape does! But first, you need to find a way past Fluffy, the 3 headed dog';
 document.getElementById("action").innerText = 'No action';
 
 function updatelvl1() {
@@ -221,14 +221,14 @@ function initRoomTwo() {
 }
 
 function updatelvl2() {
-    if (player.color == "blue" && height/2 - player.y < 16) {
+    if (player.color == "blue" && height/2 - player.y < 16 && player.y < height/2) {
         state = 3;
       document.getElementById("action").innerText =  'Cast fire at the plant';
     } else if (state === 3) {
       state = 0;
       document.getElementById("action").innerText = 'No action';
     }
-    if (player.color != "blue" && height/2 - player.y < 16) {
+    if (player.color != "blue" && height/2 - player.y < 16 && player.y < height/2) {
         state = 4;
       document.getElementById("action").innerText =  'Escape vines';
     } else if (state === 4) {
@@ -260,8 +260,8 @@ function updatelvl2() {
             document.getElementById("notification").innerText = "Struggling only makes the vines tighter.  You are suffocating under these vines!";
         } 
         if (state === 5) {
-            document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life size chess ever. I think you need to win the game to pass';
-          return initRoomThree();
+            document.getElementById("notification").innerText = "The door opens to a room filled with keys that have wings and some broomsticks on the wall.  It looks like you are going to have to catch the right key to unlock the next door";
+          return keysGame();
         }
         keys[32] = false;
     }
@@ -336,10 +336,30 @@ function initRoomThree() {
     height: 10,
     width: 10
   })
+  state = 0;
+  document.getElementById("action").innerText = 'No action';
   player.x = 25;
   requestAnimationFrame(updatelvl3);
 }
 function updatelvl3() {
+    if (player.x > (width/2 - 15) && player.x < (width/2 + 25)) {
+        if (player.color == "purple") {
+            state = 6;
+        } else {
+            state = 7;
+        }
+        document.getElementById("action").innerText = "Play chess";
+    } else if (state == 6 || state == 7) {
+        state = 0;
+        document.getElementById("action").innerText = "No action";
+    }
+    if (player.x > 485 - player.width && player.y > height / 2) {
+        state = 8;
+        document.getElementById("action").innerText = "Open door";
+    } else if (state == 8) {
+        state = 0;
+        document.getElementById("action").innerText = "No action";
+    }
     // check keys
     if (keys[17]) {   
     	changeCharacter();
@@ -347,19 +367,19 @@ function updatelvl3() {
     }
     if (keys[32]) {
 				// space
-        if (player.x > (width/2 - 15) && player.x < (width/2 + 25)) {
-        	if (player.color == "purple") {
-          	console.log('you win the chess game')
+        if (state == 6) {
+            document.getElementById("notification").innerText = "You have won the chess game, it appears to now be safe to pass through";
             chess = true;
-          } else {
-            console.log("Only Ron knows how to play chess");
+        } else if (state == 7) {
+            document.getElementById("notification").innerText = "You lost the game horribly and everyone in your group suffered major injuries and cannot continue.  You Lose";
             return;
-          }
         }
         
-        if (player.x > 485 - player.width && player.y > height / 2 && chess) {
-        	console.log('enter door');
-          return keysGame();
+        if (state == 8 && chess) {
+            document.getElementById("notification").innerText = "The door opens and you see Professor Quirrell at the mirror, not Snape!  Only Harry can proceed now";
+          return lastRoom();
+        } else if (state == 8) {
+            document.getElementById("notification").innerText = "The door is locked, looks like you do have to play that game of chess";
         }
         keys[32] = false;
     }
@@ -441,21 +461,44 @@ function keysGame() {
     });
     opts.numKeys++;
   }
+  document.getElementById("action").innerText = "No action";
   keys[32] = false;
   keysloop();
 }
 function keysloop() {
+  state = 0;
+  for (var i = 0; i < opts.numKeys; i++) {
+      var key = fkeys[i];
+      if (player.x > key.x - 15 && player.x < key.x + 15 && player.y > key.y - 15 && player.y < key.y + 15) {
+        state = 10;
+        document.getElementById("action").innerText = "Grab key"
+        break;
+      }
+  }
+  if (state == 0) {
+      document.getElementById("action").innerText = "No action";
+  }
+
+    if (keys[17]) {   
+    	changeCharacter();
+      keys[17] = false;
+    }
   if (keys[32]) {
       // space
       for (var i = 0; i < opts.numKeys; i++) {
       var key = fkeys[i];
       if (player.x > key.x - 15 && player.x < key.x + 15 && player.y > key.y - 15 && player.y < key.y + 15) {
-        console.log("Im stealing a key, but is it the right one?");
-        keys.splice(i, 1);
+        if (player.color == "red") {
+        document.getElementById("notification").innerText = "You grabbed a key, but did you grab the correct one?";
+        fkeys.splice(i, 1);
         opts.numKeys--;
+        } else {
+        document.getElementById("notification").innerText = "You reach for the key, but clearly are not as good of a seeker as Harry and you miss it";
+        }
         break;
       }
     }
+    keys[32] = false;
   }
   if (keys[38]) {
       // up arrow
@@ -557,10 +600,11 @@ function keysloop() {
       player.x--;
     }
   }
-  ctx.fillStyle="#FF0000";
+  ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, 20,20);
   if (opts.numKeys < 5) {
-    return lastRoom();
+    document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life sized chess ever. I think you need to win the game to pass';
+    return initRoomThree();
   }
   requestAnimationFrame(keysloop);
 }
@@ -569,6 +613,8 @@ function lastRoom () {
 	player.x = 25;
   player.y = height - 15;
   player.color = "red";
+  document.getElementById("current").innerText = "Harry";
+  document.getElementById("action").innerText = "No action";
   boxes.pop();
   requestAnimationFrame(updateLastRoom);
 }
@@ -588,16 +634,21 @@ function changeCharacter() {
 
 // MIRROR ROOM
 function updateLastRoom() {
-if (keys[17]) {   
-			changeCharacter();
-      keys[17] = false;
+    if (player.x > 430 && player.x < 450) {
+       state = 11;
+       document.getElementById("action").innerText = "Look at mirror";
+    } else if (state == 11) {
+       state = 0;
+       document.getElementById("action").innerText = "No action";
     }
+    // No change character here.  only Harry can pass through
     if (keys[32]) {
     		// space
-        if (player.x > 430 && player.x < 450) {
-        	console.log("Congratulations - you win!");
+        if (state == 11) {
+          document.getElementById("notification").innerText = "You look in the mirror, see yourself placing the stone in your pocket and suddenly feel something drop in your actual pocket.  Feeling it, you realize that this must be the stone.  Congratulations, You win!";
           return;
         }
+        keys[32] = false;
     }
     if (keys[38]) {
         // up arrow
