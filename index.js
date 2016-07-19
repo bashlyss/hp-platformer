@@ -28,7 +28,7 @@ var canvas = document.getElementById("canvas"),
 var boxes = [];
 var timer = 60;
 var chess = false;
-var action = 0;
+var state = 0;
 
 // dimensions
 boxes.push({
@@ -53,23 +53,39 @@ boxes.push({
 canvas.width = width;
 canvas.height = height;
 document.getElementById("current").innerText = "Harry";
+document.getElementById("notification").innerText = 'You have snuck into the forbidden third floor corridor with your best friends Ron and Hermoine in your first year of school.  Get to the Philosopher\'s Stone before Snape does! But first, you need to find a way past Fluffy, the 3 headed dog (large green blob)';
+document.getElementById("action").innerText = 'No action';
 
 function updatelvl1() {
+    if (player.x > 455 && player.x < 475) {
+      state = 1;
+      document.getElementById("action").innerText =  'Open trapdoor and enter';
+    } else if (state === 1) {
+      state = 0;
+      document.getElementById("action").innerText = 'No action';
+    }
+    if (player.x > 295 && player.x < 315) {
+      state = 2;
+      document.getElementById("action").innerText = 'Play the harp';
+    } else if (state === 2) {
+      state = 0;
+      document.getElementById("action").innerText = 'No action';
+    }
     // check keys 
     if (keys[17]) {   
       changeCharacter();
       keys[17] = false;
     }
     if (keys[32]) {
-    		// space
-        if (player.x > 455 && player.x < 475) {
-        	console.log('open trapdoor and enter');
-          return initRoomTwo();
-        }
-        if (player.x > 295 && player.x < 315) {
-        	console.log('Playing the harp!');
-          sleeping = true;
-        }
+        // space
+      if (state === 1) {
+        document.getElementById("notification").innerText = 'You fell through the trap door but landed softly in some plant.  Watch out though, it is wrapping itself around you!';
+        return initRoomTwo();
+      }
+      if (state === 2) {
+        document.getElementById("notification").innerText = 'You played the harp and Fluffy fell asleep.  You can now pass safely';
+        sleeping = true;
+      }
     }
     if (keys[38]) {
         // up arrow
