@@ -129,24 +129,26 @@ function updatelvl1() {
         }
     }
     if(player.grounded){
-         player.velY = 0;
+        player.velY = 0;
     }
     player.x += player.velX;
     player.y += player.velY;
     ctx.fill();
-		// Harp
-		ctx.fillStyle = 'yellow';
+    // Harp
+    ctx.fillStyle = 'yellow';
     ctx.fillRect(300, 178, 10, 20);
-		// Fluffy
-    ctx.fillStyle = 'green';
-    ctx.fillRect(390, 148, 40, 50);
+    // Fluffy
+    var drawing = new Image();
+    drawing.src = "https://az480170.vo.msecnd.net/debd7172-44dc-4681-b074-d940a93cc4e1/img/prd/830c44da-12ed-4c0f-9d52-121790429471/l_fluffy01_cap_hpe.png";
+    ctx.drawImage(drawing, 390, 150, 40, 50);
+  
     if (!sleeping && player.x > 390) {
       document.getElementById("notification").innerText = "You ran straight at a massive 3 headed dog named Fluffy and it ate you.  What else would you expect? You lose";
       return;
     }
     // Trapdoor
-		ctx.fillStyle = 'rgb(181,101,29)'
-		ctx.fillRect(455, 197, 20, 3);
+    ctx.fillStyle = 'rgb(181,101,29)';
+    ctx.fillRect(455, 197, 20, 3);
     // Player
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -202,7 +204,7 @@ window.addEventListener("load", function () {
 // ROOM TWO
 
 function initRoomTwo() {
-	player.x = 25;
+  player.x = 25;
   player.y = 15;
   state = 0;
   document.getElementById("action").innerText = 'No action';
@@ -210,7 +212,6 @@ function initRoomTwo() {
   refreshIntervalId = setInterval(function() {
     timer--;
     document.getElementById("timer").innerText = timer;
-    console.log("Time left: " + timer);
   }, 1000);
   boxes.push({
     x: 0,
@@ -262,7 +263,7 @@ function updatelvl2() {
         } 
         if (state === 5) {
             document.getElementById("notification").innerText = "The door opens to a room filled with keys that have wings and some broomsticks on the wall.  It looks like you are going to have to catch the right key to unlock the next door";
-          return keysGame();
+            return keysGame();
         }
         keys[32] = false;
     }
@@ -318,9 +319,9 @@ function updatelvl2() {
     player.x += player.velX;
     player.y += player.velY;
     ctx.fill();
-		ctx.fillStyle = "green";
+    ctx.fillStyle = "green";
     ctx.fillRect(10, height/2 - 10, width, 20);
-		ctx.fillStyle = "brown";
+    ctx.fillStyle = "brown";
     ctx.fillRect(width - 10, height - 32, 10, 30);
     // Player
     ctx.fillStyle = player.color;
@@ -330,13 +331,13 @@ function updatelvl2() {
 
 // ROOM THREE
 function initRoomThree() {
-	boxes.pop();
+  boxes.pop();
   boxes.push({
   	x: width / 2,
-    y: height- 12,
-    height: 10,
-    width: 10
-  })
+    	y: height- 12,
+	  height: 10,
+	  width: 10
+  });
   state = 0;
   document.getElementById("action").innerText = 'No action';
   player.x = 25;
@@ -364,7 +365,7 @@ function updatelvl3() {
     // check keys
     if (keys[17]) {   
     	changeCharacter();
-      keys[17] = false;
+        keys[17] = false;
     }
     if (keys[32]) {
 				// space
@@ -429,10 +430,10 @@ function updatelvl3() {
     player.x += player.velX;
     player.y += player.velY;
     ctx.fill();
-		ctx.fillStyle = "orange";
+    ctx.fillStyle = "orange";
     ctx.fillRect(width/2, height-14, 10, 2);
-		//door
-		ctx.fillStyle = "brown";
+    //door
+    ctx.fillStyle = "brown";
     ctx.fillRect(width - 10, height - 32, 10, 30);
     // Player
     ctx.fillStyle = player.color;
@@ -446,7 +447,7 @@ var opts = {
 }
 var fkeys = [];
 function keysGame() {
-  player.x = 50;
+ player.x = 50;
  for (var i=0; i < 10; i++) {
     var x = Math.floor(Math.random() * width);
     var y = Math.floor(Math.random() * height);
@@ -462,7 +463,6 @@ function keysGame() {
     });
     opts.numKeys++;
   }
-  
   fkeys.push({
     x: 100,
     y: 100,
@@ -489,7 +489,7 @@ function keysloop() {
 
     if (keys[17]) {   
     	changeCharacter();
-      keys[17] = false;
+        keys[17] = false;
     }
   if (keys[32]) {
       // space
@@ -511,7 +511,7 @@ function keysloop() {
         fkeys.splice(i, 1);
         opts.numKeys--;
         } else {
-        document.getElementById("notification").innerText = "You reach for the key, but clearly are not as good of a seeker as Harry and you miss it";
+		document.getElementById("notification").innerText = "You reach for the key, but clearly are not as good of a seeker as Harry and you miss it";
         }
         break;
       }
@@ -669,7 +669,7 @@ function updateLastRoom() {
     }
     // No change character here.  only Harry can pass through
     if (keys[32]) {
-    		// space
+    	// space
         if (state == 11) {
           document.getElementById("notification").innerText = "You look in the mirror, see yourself placing the stone in your pocket and suddenly feel something drop in your actual pocket.  Feeling it, you realize that this must be the stone.  Congratulations, You win!";
           return;
@@ -701,13 +701,10 @@ function updateLastRoom() {
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "black";
     ctx.beginPath();
-    
     player.grounded = false;
     for (var i = 0; i < boxes.length; i++) {
         ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-        
         var dir = colCheck(player, boxes[i]);
-
         if (dir === "l" || dir === "r") {
             player.velX = 0;
             player.jumping = false;
@@ -717,7 +714,6 @@ function updateLastRoom() {
         } else if (dir === "t") {
             player.velY *= -1;
         }
-
     }
     if(player.grounded){
          player.velY = 0;
@@ -725,15 +721,14 @@ function updateLastRoom() {
     player.x += player.velX;
     player.y += player.velY;
     ctx.fill();
-		// Mirror
-		ctx.fillStyle = 'yellow';
+    // Mirror
+    ctx.fillStyle = 'yellow';
     ctx.fillRect(450, 168, 10, 30);
-		// Quirrel
-		ctx.fillStyle = 'lightgreen';
+    // Quirrel
+    ctx.fillStyle = 'lightgreen';
     ctx.fillRect(435, 178, 10, 20);
     // Player
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, player.width, player.height);
-
     requestAnimationFrame(updateLastRoom);
 }
