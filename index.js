@@ -29,6 +29,7 @@ var boxes = [];
 var timer = 60;
 var chess = false;
 var state = 0;
+var exitKeys = false;
 
 // dimensions
 boxes.push({
@@ -445,7 +446,7 @@ var opts = {
 }
 var fkeys = [];
 function keysGame() {
-  player.x = 25;
+  player.x = 50;
  for (var i=0; i < 10; i++) {
     var x = Math.floor(Math.random() * width);
     var y = Math.floor(Math.random() * height);
@@ -461,6 +462,13 @@ function keysGame() {
     });
     opts.numKeys++;
   }
+  
+  fkeys.push({
+    x: 100,
+    y: 100,
+    real: true
+  });
+  opts.numKeys++;
   document.getElementById("action").innerText = "No action";
   keys[32] = false;
   keysloop();
@@ -485,11 +493,21 @@ function keysloop() {
     }
   if (keys[32]) {
       // space
+    
+      if (player.x > 465 && exitKeys) {
+        document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life sized chess ever. I think you need to win the game to pass';
+        return initRoomThree();
+      }
+    
       for (var i = 0; i < opts.numKeys; i++) {
       var key = fkeys[i];
       if (player.x > key.x - 15 && player.x < key.x + 15 && player.y > key.y - 15 && player.y < key.y + 15) {
         if (player.color == "red") {
         document.getElementById("notification").innerText = "You grabbed a key, but did you grab the correct one?";
+        if (key.real) {
+          exitKeys = true;
+          document.getElementById("notification").innerText = "You got the right key! You can now exit the room";
+        }
         fkeys.splice(i, 1);
         opts.numKeys--;
         } else {
@@ -525,9 +543,9 @@ function keysloop() {
   ctx.strokeStyle = "rgba(255, 255, 255, 1)";
   for (var i = 0; i < opts.numKeys; i++) {
     var key = fkeys[i];
-    ctx.beginPath();
-    ctx.arc(key.x, key.y, 10, 0, Math.PI * 2, false);
-    ctx.stroke();
+    var drawing = new Image();
+    drawing.src = "http://vignette1.wikia.nocookie.net/harrypotter/images/c/cf/All_sizes_Untitled_Flickr_Photo_Sharing_.png/revision/latest?cb=20111215182006";
+    ctx.drawImage(drawing, key.x, key.y, 10, 10);
     var dir = Math.ceil(Math.random() * 9);
     if (dir === 1) {
       key.x--;
@@ -592,20 +610,28 @@ function keysloop() {
   if (moving) {
     if (direction === 'up') {
       player.y--;
+      if (player.y < 10) {
+        player.y++;
+      }
     } else if (direction === 'down') {
       player.y ++;
+      if (player.y > height - 30) {
+        player.y--;
+      }
     } else if (direction === 'left') {
       player.x++;
+      if (player.x > width - 30) {
+        player.x--;
+      }
     } else if (direction === 'right') {
       player.x--;
+      if (player.x < 10) {
+        player.x++;
+      }
     }
   }
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, 20,20);
-  if (opts.numKeys < 5) {
-    document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life sized chess ever. I think you need to win the game to pass';
-    return initRoomThree();
-  }
   requestAnimationFrame(keysloop);
 }
 
