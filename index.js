@@ -479,9 +479,13 @@ function keysloop() {
       var key = fkeys[i];
       if (player.x > key.x - 15 && player.x < key.x + 15 && player.y > key.y - 15 && player.y < key.y + 15) {
         state = 10;
-        document.getElementById("action").innerText = "Grab key"
+        document.getElementById("action").innerText = "Grab key";
         break;
       }
+  }
+  if (player.x > 465 && exitKeys) {
+      state = 11;
+      document.getElementById("action").innerText = "Open door";
   }
   if (state == 0) {
       document.getElementById("action").innerText = "No action";
@@ -494,10 +498,13 @@ function keysloop() {
   if (keys[32]) {
       // space
     
-      if (player.x > 465 && exitKeys) {
+      if (state == 11) {
         document.getElementById("notification").innerText = 'You opened the door and walk through.  It looks like the most terrifying game of life sized chess ever. I think you need to win the game to pass';
         return initRoomThree();
-      }
+       } else if (state == 11) {
+        state = 0;
+        document.getElementById("action").innerText = "No action";
+       }
     
       for (var i = 0; i < opts.numKeys; i++) {
       var key = fkeys[i];
@@ -661,16 +668,16 @@ function changeCharacter() {
 // MIRROR ROOM
 function updateLastRoom() {
     if (player.x > 430 && player.x < 450) {
-       state = 11;
+       state = 12;
        document.getElementById("action").innerText = "Look at mirror";
-    } else if (state == 11) {
+    } else if (state == 12) {
        state = 0;
        document.getElementById("action").innerText = "No action";
     }
     // No change character here.  only Harry can pass through
     if (keys[32]) {
     	// space
-        if (state == 11) {
+        if (state == 12) {
           document.getElementById("notification").innerText = "You look in the mirror, see yourself placing the stone in your pocket and suddenly feel something drop in your actual pocket.  Feeling it, you realize that this must be the stone.  Congratulations, You win!";
           return;
         }
