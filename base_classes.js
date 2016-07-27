@@ -22,10 +22,12 @@ class Player {
     }
     
     static changeCharacter(players, current) {
+        let x = players[current].x, y = players[current].y
         current = (current + 1) % players.length;
+        players[current].x = x;
+        players[current].y = y;
         setPlayer(players[current]);
     }
-}
     
     draw (ctx) {
         ctx.fillStyle = this.color;
@@ -35,7 +37,11 @@ class Player {
     move (level) {
         if (keys[17]) {  
             // Control key
-            Player.changeCharacter(level.players, level.currentPlayer);
+            if (level.changeCharacter) {
+                level.changeCharacter();
+            } else {
+                Player.changeCharacter(level.players, level.currentPlayer);
+            }
             keys[17] = false;
         }
         if (keys[38]) {
@@ -58,6 +64,29 @@ class Player {
                 this.velX--;
             }
         }
+        this.velX *= friction;
+        this.velY += gravity;
+        
+        // Collision detection
+        this.grounded = false;
+        let boxes = level.room.boxes;
+        for (var i = 0; i < boxes.length; i++) {
+            var dir = colCheck(this, boxes[i]);
+            if (dir === "l" || dir === "r") {
+                this.velX = 0;
+                this.jumping = false;
+            } else if (dir === "b") {
+                this.grounded = true;
+                this.jumping = false;
+            } else if (dir === "t") {
+                this.velY *= -1;
+            }
+        }
+        if(this.grounded){
+            this.velY = 0;
+        }
+        this.x += this.velX;
+        this.y += this.velY;
     }
 }
 
@@ -70,13 +99,10 @@ class Game {
     play () {
         let current = 1;
         let result;
-        while (current <= this.levels.length) {
+        if (current <= this.levels.length) {
             result = this.levels[current-1].play();
             if (result) {
                 current += 1;
-            }
-            else {
-                break;
             }
         }
         // TODO Create play again logic
@@ -95,21 +121,27 @@ class Level {
         this.rooms = rooms;
         this.players = players;
         this.currentPlayer = 0;
+        this.currentRoom = 0;
+        // Canvas context to draw on for the level
+        this.ctx = context;
     }
     
     get player () {
         return this.players[this.currentPlayer];
     }
     
+    get room () {
+        return this.rooms[this.currentRoom];
+    }
+    
     play () {
-        let current = 0;
         let result;
-        while (current < this.rooms.length) {
-            result = this.rooms[current].play(this);
+        while (this.currentRoom < this.rooms.length) {
+            result = this.room.play(this);
             if (result) {
-                current += 1;
+                this.currentRoom += 1;
             }
-            else {
+            else if (result === false) {
                 return false;
             }
         }
@@ -123,15 +155,27 @@ class Room {
     constructor() {
         // TODO override in implementations
         this.state = 0;
+        this.boxes = [];
     }
     
     play (level) {
-        this.updateState(level.player);
-        player.move(level));
-        this.draw(ctx);
+        if (this.updateState(level.player)) {
+            // Update State only returns true if you have hit a lose condition
+            return false;
+        }
+        level.player.move(level);
+        if (keys[32]) {
+            if (this.performAction(level.player)) {
+                // Performing an action is required to beat any given room so this is the only place that victory conditions are met
+                return true;
+            }
+        }
+        this.draw(level.ctx);
+        level.player.draw(level.ctx);
+        //requestAnimationFrame(this.play.bind(this, level));
     }
     
-    updateState () {
+    updateState (player) {
         throw new Error("Update state method not implemented for the current room");
     }
     
@@ -139,4 +183,17 @@ class Room {
         throw new Error("Draw method not implemented for the current room");
     }
     
+    performAction (player) {
+        throw new Error("Perform action not implemented for the current room");
+    }
+    
+}
+
+class Box {
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 }
